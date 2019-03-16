@@ -31,6 +31,18 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 /**
+ * Create socket.io instance.
+ */
+
+var io = require('socket.io')(server);
+
+io.on('connection', function(socket){
+  socket.on('chat message', function(msg){
+    io.emit('chat message', msg);
+  });
+});
+
+/**
  * Normalize a port into a number, string, or false.
  */
 
