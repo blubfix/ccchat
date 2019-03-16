@@ -1,0 +1,15 @@
+{
+  "name": "ccchat",
+  "version": "1.0.0",
+  "description": "a cloud computing chat server by 762582 and 762600",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "consolidate": "^0.15.1",
+    "debug": "~2.2.0",
+    "express": "^4.15.2",
+    "socket.io": "^2.2.0",
+    "swig": "^1.4.2"
+  }
+}
