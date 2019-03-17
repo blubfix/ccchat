@@ -37,10 +37,33 @@ server.on('listening', onListening);
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket){
+  connections = [];
+
+
+  // Chat Message
   socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
+    io.emit('chat message', GetCurrentTime() + msg);
+  });
+  
+  // Connection
+  connections.push(socket);
+  io.emit('chat message', "User joined the chat")
+
+  // Disconnect
+  socket.on('disconnect', function() {
+    connections.splice(connections.indexOf(socket), 1);
+    io.emit('chat message', "User left the chat")
   });
 });
+
+function GetCurrentTime() {
+  var date = new Date();
+  var currentHour = date.getHours();
+  var currentMinute = date.getMinutes();
+  var currentSecond = date.getSeconds();
+  var time = '<' + currentHour + ":" + currentMinute + ":" + currentSecond + '>';
+  return time;
+}
 
 /**
  * Normalize a port into a number, string, or false.
