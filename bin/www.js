@@ -42,7 +42,9 @@ io.on('connection', function(socket){
 
   // Chat Message
   socket.on('chat message', function(msg){
-    io.emit('chat message', GetCurrentTime() + msg);
+    if(msg != 0) {
+      io.emit('chat message', GetCurrentTime() + msg);
+    }
   });
   
   // Connection
@@ -56,12 +58,35 @@ io.on('connection', function(socket){
   });
 });
 
+
+/**
+ * Gets the current time.
+ */
+
 function GetCurrentTime() {
   var date = new Date();
   var currentHour = date.getHours();
   var currentMinute = date.getMinutes();
   var currentSecond = date.getSeconds();
-  var time = '<' + currentHour + ":" + currentMinute + ":" + currentSecond + '>';
+  if(currentHour.toString().length < 2) {
+    var currentHourString = "0" + currentHour.toString();
+  }
+  else {
+    var currentHourString = currentHour.toString();
+  }
+  if(currentMinute.toString().length < 2) {
+    currentMinuteString = "0" + currentMinute.toString();
+  }
+  else {
+    var currentMinuteString = currentMinute.toString();
+  }
+  if(currentSecond.toString().length < 2) {
+    currentSecondString = "0" + currentSecond.toString();
+  }
+  else {
+    var currentSecondString = currentSecond.toString();
+  }
+  var time = '<' + currentHourString + ":" + currentMinuteString + ":" + currentSecondString + '> ';
   return time;
 }
 
