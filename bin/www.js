@@ -5,6 +5,9 @@ var app = require('../app');
 var debug = require('debug')('ccchat:server');
 var http = require('http');
 
+users = [];
+connections = [];
+
 /**
  * Get port from environment and store in Express.
  */
@@ -37,26 +40,42 @@ server.on('listening', onListening);
 var io = require('socket.io')(server);
 
 io.on('connection', function(socket){
-  connections = [];
+  
+  // Connection
+  connections.push(socket);
+
+  // Disconnect
+  socket.on('disconnect', function() {
+    users.splice(users.indexOf(socket.username), 1);
+    console.log(users);
+    updateUsernames;
+    connections.splice(connections.indexOf(socket), 1);
+    io.emit('chat message', socket.username + " left the chat")
+  });
 
 
   // Chat Message
   socket.on('chat message', function(msg){
     if(msg != 0) {
-      io.emit('chat message', GetCurrentTime() + msg);
+      io.emit('chat message', GetCurrentTime() + '"' + socket.username + '": ' + msg);
     }
   });
-  
-  // Connection
-  connections.push(socket);
-  io.emit('chat message', "User joined the chat")
 
-  // Disconnect
-  socket.on('disconnect', function() {
-    connections.splice(connections.indexOf(socket), 1);
-    io.emit('chat message', "User left the chat")
-  });
+  // New User
+  socket.on('new user', function(data, callback) {
+    callback(true);
+    socket.username = data;
+    users.push(socket.username);
+    updateUsernames();
+    io.emit('chat message', socket.username + " joined the chat")
+  })
+
+  function updateUsernames() {
+    io.sockets.emit('get users', users);
+  }
 });
+
+
 
 
 /**
