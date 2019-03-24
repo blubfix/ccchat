@@ -46,13 +46,26 @@
         <input id="messageInput" autocomplete="off" />
 
         <button class="sendButton">Send</button>
+        
         <span class="nav_trigger">
             <i class="fas fa-users"></i>
           </span> 
       </form>
+      <div id="divImage">
+        <form id="imageForm">
+          <input type="file" id="files" name="files[]" multiple />
+          <output id="list"></output>
+        </form>
+  
+      </div>
+      
+      
+    </div>
+    
+    
     </div>
   </div>
-
+  
   </div>
 
 
@@ -81,7 +94,23 @@
         $('#messageInput').val('');
         return false;
       });
+      function handleFileSelect(evt) {
+      var files = evt.target.files; // FileList object
+      
 
+        // files is a FileList of File objects. List some properties.
+        var output = [];
+        for (var i = 0, f; f = files[i]; i++) {
+          console.log(files[i].toString())
+          output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                      f.size, ' bytes, last modified: ',
+                      f.lastModifiedDate.toLocaleDateString(), '</li>');
+        }
+        document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+      }
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+      
       socket.on('chat message', function (msg) {
         $('#messages').append($('<li>').text(msg));
         window.scrollTo(0, document.body.scrollHeight);

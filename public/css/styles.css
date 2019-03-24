@@ -13,14 +13,30 @@
             cursor: pointer;
             margin-right: .5%;
        }
+       .sendImage { 
+            width: 10%;
+            background: rgb(0 , 100, 255);
+            border: none;
+            padding: .5%;
+            cursor: pointer;
+            margin-right: .5%;
+       }
 
       #messageForm {
-            background: black;
+            background: white;
             padding: 3px;
             position: fixed;
             bottom: 0;
             width: 100%;
       }
+      #imageForm {
+            background: white;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+      }
+
 
       #messageInput {
             border: 0;
@@ -99,6 +115,8 @@
 
       #divChat {
             display: none;
+            min-height:2%;
+            
       }
 
       #user {
@@ -143,4 +161,9 @@
             margin-right: auto;
             padding-bottom: 100%;
 
+      }
+      #divImage{
+            
+            min-height: 1%;
+            background: #FFFFFF;
       }
