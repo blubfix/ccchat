@@ -55,7 +55,7 @@ io.on('connection', function(socket){
 
 
   // Chat Message
-  socket.on('chat message', function(data, callback){
+  socket.on('chat message', function(data){
     if(checkForPrivateMessage(data)) {
       var username = data.substr(1, data.indexOf(' '));
       var privateMessage = data.substr(data.indexOf(' ') + 1);
@@ -64,7 +64,7 @@ io.on('connection', function(socket){
         users[username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
       }
       else {
-        callback("Not a valid user!");
+        users[socket.username].emit('notification', "Invalid Username!");
       }
     }
     else if(data != 0) {
