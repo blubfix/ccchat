@@ -1,12 +1,33 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; margin: 0; padding: 0; }
-      form { background: #808080; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: .5%; width: 85%; margin-right: .5%; }
-      .sendButton { width: 10%; background: rgb(130, 224, 255); border: none; padding: .5%; cursor: pointer; margin-right: .5%; }
+      body { font: 13px Helvetica, Arial; margin: 0; padding: 0; }    
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
       #messages { margin-bottom: 50px }
+
+      .sendButton { 
+            width: 10%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: .5%;
+            cursor: pointer;
+            margin-right: .5%;
+       }
+
+      #messageForm {
+            background: black;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+      }
+
+      #messageInput {
+            border: 0;
+            padding: .5%;
+            width: 85%;
+            margin-right: .5%;
+      }
 
       .nav_trigger {
       cursor: pointer;
@@ -94,10 +115,8 @@
             max-width:640px;
             padding:20px;
             min-width: 320px;
-            margin-top: auto;
-            margin-bottom: 20%;
-            margin-left: 10%;
-
+            margin: 0 auto;
+            width: 100px; 
       }
 
       #inputUsername {

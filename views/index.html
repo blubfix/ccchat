@@ -13,7 +13,7 @@
 <body>
   <div id="divLogin">
       <form id="loginForm">
-        <i class="fas fa-user fa-10x" style="width: 20%; margin: 0 auto; margin-bottom: 30px; color: rgb(130, 224, 255)" alt="user" id="user"></i>
+        <i class="fas fa-user fa-10x" style="width: 400px; margin: 0 auto; margin-bottom: 30px; color: rgb(130, 224, 255)" alt="user" id="user"></i>
         <div>
               <input class="form-control" placeholder="Username" id="inputUsername">
         </div>
@@ -43,7 +43,7 @@
     <div class="right">
       <ul id="messages"></ul>
       <form id="messageForm">
-        <input id="m" autocomplete="off" />
+        <input id="messageInput" autocomplete="off" />
 
         <button class="sendButton">Send</button>
         <span class="nav_trigger">
@@ -77,8 +77,8 @@
       var $username = $('#inputUsername');
 
       $('#messageForm').submit(function () {
-        socket.emit('chat message', $('#m').val());
-        $('#m').val('');
+        socket.emit('chat message', $('#messageInput').val());
+        $('#messageInput').val('');
         return false;
       });
 
@@ -86,6 +86,10 @@
         $('#messages').append($('<li>').text(msg));
         window.scrollTo(0, document.body.scrollHeight);
       });
+
+      socket.on('private message', function(data) {
+        $('#messages').append('<li class="private"><em><strong>'+ data.from +' -> '+ data.to +'</strong>: '+ data.msg +'</em></li>');
+      })
 
       $loginForm.submit(function(e) {
         e.preventDefault();

@@ -56,7 +56,24 @@ io.on('connection', function(socket){
 
   // Chat Message
   socket.on('chat message', function(msg){
-    if(msg != 0) {
+    if(checkForPrivateMessage(msg)) {
+      var username = msg.substr(1,msg.indexOf(' '))
+      var privateMessage = msg.substr(msg.indexOf(' ')+1);
+      var temp;
+      for(var i=0; i<users.length;i++)
+      {
+        console.log(users[i]);
+        if(users[i]==username)
+          {temp = users[i];
+          }
+        
+      }
+      io.sockets[temp].emit("private message", { from: socket.username, to: username, msg: privateMessage });
+      // client.emit("private message", { from: client.id, to: data.to, msg: data.msg })
+      // io.emit('private message', { msg: privateMessage, to: username});
+      
+    }
+    else if(msg != 0) {
       io.emit('chat message', GetCurrentTime() + '"' + socket.username + '": ' + msg);
     }
   });
@@ -75,6 +92,13 @@ io.on('connection', function(socket){
   }
 });
 
+
+function checkForPrivateMessage(message) {
+  if(message.charAt(0) == "@") {
+    return true;
+  }
+  return false;
+}
 
 
 
