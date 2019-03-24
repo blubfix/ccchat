@@ -5,7 +5,7 @@ var app = require('../app');
 var debug = require('debug')('ccchat:server');
 var http = require('http');
 
-users = [];
+users = {};
 connections = [];
 
 /**
@@ -46,52 +46,50 @@ io.on('connection', function(socket){
 
   // Disconnect
   socket.on('disconnect', function() {
-    users.splice(users.indexOf(socket.username), 1);
-    console.log(users);
+    if(!socket.username) return;
+    delete users[socket.username];
     updateUsernames;
     connections.splice(connections.indexOf(socket), 1);
-    io.emit('chat message', socket.username + " left the chat")
+    io.emit('notification', socket.username + " left the chat");
   });
 
 
   // Chat Message
-  socket.on('chat message', function(msg){
-    if(checkForPrivateMessage(msg)) {
-      var username = msg.substr(1,msg.indexOf(' '))
-      var privateMessage = msg.substr(msg.indexOf(' ')+1);
-      var temp;
-      for(var i=0; i<users.length;i++)
-      {
-        console.log(users[i]);
-        if(users[i]==username)
-          {temp = users[i];
-          }
-        
+  socket.on('chat message', function(data, callback){
+    if(checkForPrivateMessage(data)) {
+      var username = data.substr(1, data.indexOf(' '));
+      var privateMessage = data.substr(data.indexOf(' ') + 1);
+      username = username.trim();
+      if(username in users) {
+        users[username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
       }
-      io.sockets[temp].emit("private message", { from: socket.username, to: username, msg: privateMessage });
-      // client.emit("private message", { from: client.id, to: data.to, msg: data.msg })
-      // io.emit('private message', { msg: privateMessage, to: username});
-      
+      else {
+        callback("Not a valid user!");
+      }
     }
-    else if(msg != 0) {
-      io.emit('chat message', GetCurrentTime() + '"' + socket.username + '": ' + msg);
+    else if(data != 0) {
+      io.emit('chat message', {msg: data, to: socket.username, time: GetCurrentTime()});
     }
   });
 
   // New User
   socket.on('new user', function(data, callback) {
-    callback(true);
-    socket.username = data;
-    users.push(socket.username);
-    updateUsernames();
-    io.emit('chat message', socket.username + " joined the chat")
+    if(data in users) {
+      callback(false);
+    }
+    else {
+      callback(true);
+      socket.username = data;
+      users[socket.username] = socket;
+      updateUsernames();
+      io.emit('notification', socket.username + " joined the chat");
+    }
   })
 
   function updateUsernames() {
-    io.sockets.emit('get users', users);
+    io.sockets.emit('get users', Object.keys(users));
   }
 });
-
 
 function checkForPrivateMessage(message) {
   if(message.charAt(0) == "@") {
@@ -99,8 +97,6 @@ function checkForPrivateMessage(message) {
   }
   return false;
 }
-
-
 
 /**
  * Gets the current time.
