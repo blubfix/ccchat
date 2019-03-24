@@ -62,6 +62,7 @@ io.on('connection', function(socket){
       username = username.trim();
       if(username in users) {
         users[username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
+        users[socket.username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
       }
       else {
         users[socket.username].emit('notification', "Invalid Username!");
