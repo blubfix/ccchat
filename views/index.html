@@ -113,6 +113,7 @@
       $('#messageForm').submit(function () {
         socket.emit('chat message', $('#messageInput').val());
         $('#messageInput').val('');
+        window.scrollTo(0, document.body.scrollHeight);
         return false;
       });
 
@@ -129,7 +130,12 @@
       socket.on('private message', function(data) {
           $('#messages').append('<li><em>'+ data.time +'<strong>'+ data.from +' -> '+ data.to +'</strong>: </em>'+ data.msg +'</li>');
           window.scrollTo(0, document.body.scrollHeight);
-      })
+      });
+
+      socket.on('warning', function(data) { 
+          $('#messages').append('<li><strong><font color="red">' + data.time + data.msg + '</font></strong></li>');
+          window.scrollTo(0, document.body.scrollHeight);
+      });
 
       $loginForm.submit(function(e) {
         e.preventDefault();

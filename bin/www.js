@@ -56,21 +56,31 @@ io.on('connection', function(socket){
 
   // Chat Message
   socket.on('chat message', function(data){
-    if(checkForPrivateMessage(data)) {
-      var username = data.substr(1, data.indexOf(' '));
-      var privateMessage = data.substr(data.indexOf(' ') + 1);
-      username = username.trim();
-      if(username in users) {
-        users[username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
-        users[socket.username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
+    if(socket.username == null) {
+      // do nothing
+    }
+    else {
+      if(checkForCommand(data)) {
+        commandFactory(data, socket.username);
       }
       else {
-        users[socket.username].emit('notification', "Invalid Username!");
-      }
-    }
-    else if(data != 0) {
-      io.emit('chat message', {msg: data, to: socket.username, time: GetCurrentTime()});
-    }
+        if(checkForPrivateMessage(data)) {
+          var username = data.substr(1, data.indexOf(' '));
+          var privateMessage = data.substr(data.indexOf(' ') + 1);
+          username = username.trim();
+          if(username in users) {
+            users[username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
+            users[socket.username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
+          }
+          else {
+            users[socket.username].emit('notification', "Invalid Username!");
+          }
+        }
+        else if(data != 0) {
+          io.emit('chat message', {msg: data, to: socket.username, time: GetCurrentTime()});
+        }
+      }    
+    }   
   });
 
   // New User
@@ -98,6 +108,94 @@ function checkForPrivateMessage(message) {
   }
   return false;
 }
+
+function checkForCommand(message) {
+  if(message.charAt(0) == "/") {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Handles different commands.
+ */
+function commandFactory(data, user) {
+  var command = null;
+  if(data.includes(' ')) {
+    command = data.substr(1, data.indexOf(' '));
+  }
+  else {
+    command = data.substr(1, data.length);
+  }
+  command = command.trim();
+
+  if(command == "warning") {
+    var message = data.substr(data.indexOf(' ') + 1);
+    io.emit('warning', {msg: message, time: GetCurrentTime()});
+  }
+
+  if(command == "shutdown") {
+    shutdown();
+  };
+
+  if(command == "help") {
+    users[user].emit('notification', "@username message -> Sends a private message");
+    users[user].emit('notification', "/g user1 user2 message -> Sends a message to a defined subset of unlimited users");
+    users[user].emit('notification', "/warning -> Sends a global warning message");
+    users[user].emit('notification', "/shutdown -> Shuts down the server");
+  }
+
+  if(command == "g") {
+    recipients = [];
+    var message = "";
+
+    var usersAndMessage = data.substr(3, data.length);
+    var usersAndMessageSplitted = usersAndMessage.split(" ");
+    usersAndMessageSplitted.forEach(element => {
+      if(element in users) {
+        recipients.push(element);
+      }
+      else {
+        message += " " + element;
+      }
+    });
+    recipients.sort();
+    message = message.trim();
+
+    var recipientsString = "";
+    recipients.forEach(element => {
+      recipientsString += " " + element + ",";
+    });
+    recipientsString = recipientsString.substr(0, recipientsString.length - 1);
+    recipientsString = recipientsString.trim();
+    
+    recipients.forEach(element => {
+      users[element].emit('private message', {msg: message, to: recipientsString, from: user, time: GetCurrentTime()});
+    });   
+    users[user].emit('private message', {msg: message, to: recipientsString, from: user, time: GetCurrentTime()});
+  }
+}
+
+/**
+ * Handles the server shutdown.
+ */
+async function shutdown() {
+  io.emit('warning', {msg: "This server will be shutdown in:", time: GetCurrentTime()});
+  for(var i = 3; i >= 1; i--) {
+    await sleep(1000);
+    io.emit('warning', {msg: i, time: GetCurrentTime()});
+  }
+  io.emit('warning', {msg: "Server shutdown!", time: GetCurrentTime()});
+  await sleep(100);
+  process.exit(0);
+}
+
+/**
+ * Sleep function.
+ */
+function sleep(milliseconds) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
+ }
 
 /**
  * Gets the current time.
