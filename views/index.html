@@ -140,7 +140,7 @@
       });
 
       socket.on('addImage', function(data) {
-        $('#messages').append('<li>' + data.time + '<strong>' + data.to + '</strong>: ' + '<img src="'+ data.image +'">' + '</li>');
+        $('#messages').append('<li>' + data.time + '<strong>' + data.to + '</strong>: ' + '<img src="'+ data.image +'" style="max-width: 400px; max-height: 400px;">' + '</li>');
       });
 
       $image.on('change', function(e) {
