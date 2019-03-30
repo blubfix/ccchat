@@ -61,25 +61,11 @@ io.on('connection', function(socket){
     }
     else {
       if(checkForCommand(data)) {
-        commandFactory(data, socket.username);
+        commandFactory(data, socket.username);     
       }
       else {
-        if(checkForPrivateMessage(data)) {
-          var username = data.substr(1, data.indexOf(' '));
-          var privateMessage = data.substr(data.indexOf(' ') + 1);
-          username = username.trim();
-          if(username in users) {
-            users[username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
-            users[socket.username].emit('private message', {msg: privateMessage, to: username, from: socket.username, time: GetCurrentTime()});
-          }
-          else {
-            users[socket.username].emit('notification', "Invalid Username!");
-          }
-        }
-        else if(data != 0) {
-          io.emit('chat message', {msg: data, to: socket.username, time: GetCurrentTime()});
-        }
-      }    
+        io.emit('chat message', {msg: data, to: socket.username, time: GetCurrentTime()});  
+      }
     }   
   });
 
@@ -102,13 +88,6 @@ io.on('connection', function(socket){
   }
 });
 
-function checkForPrivateMessage(message) {
-  if(message.charAt(0) == "@") {
-    return true;
-  }
-  return false;
-}
-
 function checkForCommand(message) {
   if(message.charAt(0) == "/") {
     return true;
@@ -129,23 +108,20 @@ function commandFactory(data, user) {
   }
   command = command.trim();
 
-  if(command == "warning") {
+  if(command === "warning") {
     var message = data.substr(data.indexOf(' ') + 1);
     io.emit('warning', {msg: message, time: GetCurrentTime()});
   }
 
-  if(command == "shutdown") {
+  else if(command === "shutdown") {
     shutdown();
-  };
-
-  if(command == "help") {
-    users[user].emit('notification', "@username message -> Sends a private message");
-    users[user].emit('notification', "/g user1 user2 message -> Sends a message to a defined subset of unlimited users");
+  }
+  else if(command === "help") {
+    users[user].emit('notification', "/p user1 user2 message -> Sends a private message to a defined subset of unlimited users");
     users[user].emit('notification', "/warning -> Sends a global warning message");
     users[user].emit('notification', "/shutdown -> Shuts down the server");
   }
-
-  if(command == "g") {
+  else if(command === "p") {
     recipients = [];
     var message = "";
 
@@ -176,11 +152,20 @@ function commandFactory(data, user) {
     recipientsString = recipientsString.substr(0, recipientsString.length - 1);
     recipientsString = recipientsString.trim();
     
+    if (recipients.length === 0) {
+      users[user].emit('notification', "The selected users could not be found");
+      return;
+    }
+
     recipients.forEach(element => {
       users[element].emit('private message', {msg: message, to: recipientsString, from: user, time: GetCurrentTime()});
     });   
     users[user].emit('private message', {msg: message, to: recipientsString, from: user, time: GetCurrentTime()});
   }
+  else {
+    users[user].emit('notification', "Type /help for help");
+  }
+
 }
 
 /**
