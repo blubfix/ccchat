@@ -37,7 +37,16 @@ server.on('listening', onListening);
  * Create socket.io instance.
  */
 
-var io = require('socket.io')(server);
+const SocketAntiSpam  = require('socket-anti-spam')
+const io = require('socket.io')(server);
+
+const socketAntiSpam = new SocketAntiSpam({
+  banTime:            3,          // Ban time in minutes
+  kickThreshold:      5,          // User gets kicked after this many spam score
+  kickTimesBeforeBan: 5,          // User gets banned after this many kicks
+  banning:            false,      // Uses temp IP banning after kickTimesBeforeBan
+  io:                 io          // Bind the socket.io variable
+})
 
 io.on('connection', function(socket){
   
@@ -56,6 +65,10 @@ io.on('connection', function(socket){
 
   // Chat Message
   socket.on('chat message', function(data){
+    
+    if(data.length === 0) {
+      return;
+    }
     if(socket.username == null) {
       // do nothing
     }
@@ -68,6 +81,11 @@ io.on('connection', function(socket){
       }
     }   
   });
+
+  
+socketAntiSpam.event.on('kick', (socket, data) => {
+  users[socket.username].emit('warning', {msg: "You have been kicked for spamming", time: GetCurrentTime()});
+});
 
   // New User
   socket.on('new user', function(data, callback) {
@@ -163,7 +181,7 @@ function commandFactory(data, user) {
     users[user].emit('private message', {msg: message, to: recipientsString, from: user, time: GetCurrentTime()});
   }
   else {
-    users[user].emit('notification', "Type /help for help");
+    users[user].emit('notification', "Unknown command type /help for help");
   }
 
 }

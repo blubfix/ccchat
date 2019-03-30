@@ -15,7 +15,11 @@
     <div class="text-center">
       <form id="loginForm" action="/chat">
         <i class="fas fa-user fa-10x" style="margin-bottom: 30px; color: rgb(130, 224, 255)" alt="user"
-          id="user"></i>
+          id="user">
+        </i>
+        <div class="alert alert-danger" id="dupUser" style="display: none;">
+          Username already taken
+       </div>
         <div>
           <input class="form-control" placeholder="Username" id="inputUsername">
         </div>
@@ -145,6 +149,9 @@
             $loginFormArea.hide();
             $messageFormArea.show();
             $("body").css("background-color", "white");
+          }
+          else {
+            $('#dupUser').show();
           }
         });
         $username.val('');
