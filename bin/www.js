@@ -151,11 +151,18 @@ function commandFactory(data, user) {
 
     var usersAndMessage = data.substr(3, data.length);
     var usersAndMessageSplitted = usersAndMessage.split(" ");
+    var userEndFlag = false;
     usersAndMessageSplitted.forEach(element => {
       if(element in users) {
-        recipients.push(element);
+        if(!userEndFlag) {
+          recipients.push(element);
+        }
+        else {
+          message += " " + element;
+        }
       }
       else {
+        userEndFlag = true;
         message += " " + element;
       }
     });
