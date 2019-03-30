@@ -6,20 +6,21 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="shortcut icon" href="favicon.ico">
   <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+    integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 </head>
 
 <body style="background-color: black">
   <div id="divLogin">
     <div class="text-center">
-      <form id="loginForm" action="/chat">
-        <i class="fas fa-user fa-10x" style="margin-bottom: 30px; color: rgb(130, 224, 255)" alt="user"
-          id="user">
+      <form id="loginForm">
+        <i class="fas fa-user fa-10x" style="margin-bottom: 30px; color: rgb(130, 224, 255)" alt="user" id="user">
         </i>
         <div class="alert alert-danger" id="dupUser" style="display: none;">
           Username already taken
-       </div>
+        </div>
         <div>
           <input class="form-control" placeholder="Username" id="inputUsername">
         </div>
@@ -33,74 +34,46 @@
 
   <div id="divChat">
     <div class="left">
-        <div id="push_sidebar">
-          <h3 style="margin-left: 10px;">Online Users</h3>
-            <ul id="users" class="list-unstyled">
-            </ul>
-          </div>
-          
+      <div id="push_sidebar">
+        <h3 style="margin-left: 10px;">Online Users</h3>
+        <ul id="users" class="list-unstyled">
+        </ul>
+      </div>
 
-    
+
+
     </div>
 
     <div id="wrapper">
 
-    <div class="right">
-      <ul id="messages"></ul>
-      <form id="messageForm">
-        <input id="messageInput" autocomplete="off" />
+      <div class="right">
+        <ul id="messages"></ul>
+        <form id="messageForm">
+          <input id="messageInput" autocomplete="off" />
 
-        <button class="sendButton">Send</button>
-        
-        <span class="nav_trigger">
+          <button class="sendButton">Send</button>
+
+          <label for="file-upload" class="custom-file-upload">
+              <i class="fas fa-paperclip" style=" font-size: 26px;"></i>
+          </label>
+          <input id="file-upload" type="file" accept="image/png, image/jpeg"/>
+
+          <span class="nav_trigger">
             <i class="fas fa-users"></i>
-        </span> 
-      </form>
-      <!--
-      <div id="divImage">
-        <form id="imageForm">
-          <input type="file" id="files" name="files[]" multiple />
-          <output id="list"></output>
+          </span>
         </form>
-  
       </div>
-      -->
-      
-      
-    </div>
-    
-    
+
+
     </div>
   </div>
-  
+
   </div>
-
-
-  <!-- Filepicker Skript -->
-  <script>
-        function handleFileSelect(evt) {
-          var files = evt.target.files; // FileList object
-          
-
-          // files is a FileList of File objects. List some properties.
-          var output = [];
-          for (var i = 0, f; f = files[i]; i++) {
-            console.log(files[i].toString())
-            output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
-                        f.size, ' bytes, last modified: ',
-                        f.lastModifiedDate.toLocaleDateString(), '</li>');
-          }
-          document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
-        }
-
-        document.getElementById('files').addEventListener('change', handleFileSelect, false);
-  </script>
 
   <!-- Sidebar Script -->
   <script>
-    $(".nav_trigger").click(function() {
-    $("body").toggleClass("show_sidebar");
-    $(".nav_trigger .fa").toggleClass("fa-navicon fa-times"); 
+    $(".nav_trigger").click(function () {
+      $("body").toggleClass("show_sidebar");
     });
   </script>
 
@@ -114,6 +87,7 @@
       var $messageFormArea = $('#divChat');
       var $users = $('#users');
       var $username = $('#inputUsername');
+      var $image = $('#file-upload');
 
       $('#messageForm').submit(function () {
         socket.emit('chat message', $('#messageInput').val());
@@ -123,29 +97,29 @@
       });
 
       socket.on('chat message', function (data) {
-        $('#messages').append('<li>'+ data.time +'<strong>' + data.to +'</strong>: '+ data.msg +'</li>');
+        $('#messages').append('<li>' + data.time + '<strong>' + data.to + '</strong>: ' + data.msg + '</li>');
         window.scrollTo(0, document.body.scrollHeight);
       });
 
-      socket.on('notification', function(data) {
+      socket.on('notification', function (data) {
         $('#messages').append($('<li>').text(data));
         window.scrollTo(0, document.body.scrollHeight);
       });
 
-      socket.on('private message', function(data) {
-          $('#messages').append('<li><em>'+ data.time +'<strong>'+ data.from +' -> '+ data.to +'</strong>: </em>'+ data.msg +'</li>');
-          window.scrollTo(0, document.body.scrollHeight);
+      socket.on('private message', function (data) {
+        $('#messages').append('<li><em>' + data.time + '<strong>' + data.from + ' -> ' + data.to + '</strong>: </em>' + data.msg + '</li>');
+        window.scrollTo(0, document.body.scrollHeight);
       });
 
-      socket.on('warning', function(data) { 
-          $('#messages').append('<li><strong><font color="red">' + data.time + data.msg + '</font></strong></li>');
-          window.scrollTo(0, document.body.scrollHeight);
+      socket.on('warning', function (data) {
+        $('#messages').append('<li><strong><font color="red">' + data.time + data.msg + '</font></strong></li>');
+        window.scrollTo(0, document.body.scrollHeight);
       });
 
-      $loginForm.submit(function(e) {
+      $loginForm.submit(function (e) {
         e.preventDefault();
-        socket.emit('new user', $username.val(), function(data) {
-          if(data) {
+        socket.emit('new user', $username.val(), function (data) {
+          if (data) {
             $loginFormArea.hide();
             $messageFormArea.show();
             $("body").css("background-color", "white");
@@ -157,13 +131,26 @@
         $username.val('');
       });
 
-      socket.on('get users', function(data) {
-          var html = '';
-          for(i = 0; i < data.length; i++) {
-            html += '<li>' + data[i] + '</li>';
-          }
-          $users.html(html);
+      socket.on('get users', function (data) {
+        var html = '';
+        for (i = 0; i < data.length; i++) {
+          html += '<li>' + data[i] + '</li>';
+        }
+        $users.html(html);
       });
+
+      socket.on('addImage', function(data) {
+        $('#messages').append('<li>' + data.time + '<strong>' + data.to + '</strong>: ' + '<img src="'+ data.image +'">' + '</li>');
+      });
+
+      $image.on('change', function(e) {
+        var file = e.originalEvent.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function(evt) {
+          socket.emit('user image', evt.target.result);
+        };
+        reader.readAsDataURL(file);
+      })
     });
   </script>
 </body>

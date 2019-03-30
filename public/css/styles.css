@@ -173,3 +173,14 @@
             display: none;
             min-height:2%; 
       }
+
+      #file-upload[type="file"] {
+            display: none;
+      }
+      
+      .custom-file-upload {
+            color: white;
+            display: inline-block;
+            cursor: pointer;
+            margin-right: 10px;
+      }

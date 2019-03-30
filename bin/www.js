@@ -62,7 +62,6 @@ io.on('connection', function(socket){
     io.emit('notification', socket.username + " left the chat");
   });
 
-
   // Chat Message
   socket.on('chat message', function(data){
     
@@ -82,10 +81,15 @@ io.on('connection', function(socket){
     }   
   });
 
-  
-socketAntiSpam.event.on('kick', (socket, data) => {
-  users[socket.username].emit('warning', {msg: "You have been kicked for spamming", time: GetCurrentTime()});
-});
+  // Anti Spam
+  socketAntiSpam.event.on('kick', (socket, data) => {
+    users[socket.username].emit('warning', {msg: "You have been kicked for spamming", time: GetCurrentTime()});
+  });
+
+  // Image
+  socket.on('user image', function(image) {
+    io.sockets.emit('addImage', {image: image, to: socket.username, time: GetCurrentTime()});
+  });
 
   // New User
   socket.on('new user', function(data, callback) {
@@ -104,7 +108,7 @@ socketAntiSpam.event.on('kick', (socket, data) => {
   function updateUsernames() {
     io.sockets.emit('get users', Object.keys(users));
   }
-});
+  });
 
 function checkForCommand(message) {
   if(message.charAt(0) == "/") {
