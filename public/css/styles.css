@@ -1,5 +1,12 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; margin: 0; padding: 0; }    
+
+      body { 
+            font: 13px Helvetica, Arial;
+            margin: 0;
+            padding: 0; 
+            width: 100%;
+            height: 100%;
+      }  
+
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
@@ -36,7 +43,6 @@
             bottom: 0;
             width: 10%;
       }
-
 
       #messageInput {
             border: 0;
@@ -113,23 +119,21 @@
       }
       }
 
-      #divChat {
-            display: none;
-            min-height:2%;
-            
-      }
-
       #user {
             display: block;
             margin-left: auto;
             margin-right: auto;
       }
 
+      #users {
+            margin-left: 10px;
+      }
+
       #loginForm {
             border-radius:4px;
             color:#505e6c;
             box-shadow:1px 1px 5px rgba(0,0,0,0.1);
-            background: #808080;
+            background: white;
             max-width:640px;
             padding:20px;
             min-width: 320px;
@@ -153,17 +157,19 @@
             background-color: rgb(130, 224, 255);
       }
 
-      #divLogin {
-            width: 20%;
-            margin-top: 30%;
-            margin-bottom: 30%;
-            margin-left: 20%;
-            margin-right: auto;
-            padding-bottom: 100%;
-
-      }
-      #divImage{
-            
+      #divImage {          
             min-height: 1%;
             background: #FFFFFF;
+      }
+
+      #divLogin {
+
+            width: 20%;
+            margin: 0 auto;
+            margin-top: 15vh; 
+      }
+
+      #divChat {
+            display: none;
+            min-height:2%; 
       }

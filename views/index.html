@@ -10,27 +10,28 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 </head>
 
-<body>
+<body style="background-color: black">
   <div id="divLogin">
-      <form id="loginForm">
-        <i class="fas fa-user fa-10x" style="width: 400px; margin: 0 auto; margin-bottom: 30px; color: rgb(130, 224, 255)" alt="user" id="user"></i>
+    <div class="text-center">
+      <form id="loginForm" action="/chat">
+        <i class="fas fa-user fa-10x" style="margin-bottom: 30px; color: rgb(130, 224, 255)" alt="user"
+          id="user"></i>
         <div>
-              <input class="form-control" placeholder="Username" id="inputUsername">
+          <input class="form-control" placeholder="Username" id="inputUsername">
         </div>
         <div>
-             <button type="submit" class="loginButton">Login</button>
+          <button type="submit" class="loginButton">Login</button>
         </div>
-  </form>
-
+      </form>
+    </div>
   </div>
-
 
 
   <div id="divChat">
     <div class="left">
         <div id="push_sidebar">
-          <h3>Online Users</h3>
-            <ul id="users">
+          <h3 style="margin-left: 10px;">Online Users</h3>
+            <ul id="users" class="list-unstyled">
             </ul>
           </div>
           
@@ -143,6 +144,7 @@
           if(data) {
             $loginFormArea.hide();
             $messageFormArea.show();
+            $("body").css("background-color", "white");
           }
         });
         $username.val('');
