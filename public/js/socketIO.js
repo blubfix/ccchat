@@ -61,11 +61,16 @@ $(function () {
         $('#messages').append('<li>' + data.time + '<strong>' + data.to + '</strong>: ' + '<img src="' + data.image + '" style="max-width: 400px; max-height: 400px;">' + '</li>');
     });
 
+    socket.on('addImagePrivate', function (data) {
+        $('#messages').append('<li><em>' + data.time + '<strong>' + data.from + ' -> ' + data.to + '</strong>: </em>' + '<img src="' + data.image + '" style="max-width: 400px; max-height: 400px;">' + '</li>');
+    });
+
     $image.on('change', function (e) {
+        console.log($('#messageInput').val())
         var file = e.originalEvent.target.files[0];
         var reader = new FileReader();
         reader.onload = function (evt) {
-            socket.emit('user image', evt.target.result);
+            socket.emit('user image', {image: evt.target.result, msg: $('#messageInput').val()});
         };
         reader.readAsDataURL(file);
     })

@@ -87,8 +87,34 @@ io.on('connection', function (socket) {
   });
 
   // Image
-  socket.on('user image', function (image) {
-    io.sockets.emit('addImage', { image: image, to: socket.username, time: GetCurrentTime() });
+  socket.on('user image', function (data) {
+    if (checkForCommand(data.msg)) {
+      var command = null;
+      if (data.msg.includes(' ')) {
+        command = data.msg.substr(1, data.msg.indexOf(' '));
+      }
+      else {
+        command = data.msg.substr(1, data.msg.length);
+      }
+      command = command.trim();
+      if (command === "p") {
+        var result = GetRecipientsAndMessage(data.msg, socket.username);
+
+        recipients.forEach(element => {
+          if (result.message.length) {
+            users[element].emit('private message', { msg: result.message, to: result.recipients, from: socket.username, time: GetCurrentTime() });
+          }
+          users[element].emit('addImagePrivate', { image: data.image, to: result.recipients, from: socket.username, time: GetCurrentTime() });
+        });
+        if (result.message.length) {
+          users[socket.username].emit('private message', { msg: result.message, to: result.recipients, from: socket.username, time: GetCurrentTime() });
+        }
+        users[socket.username].emit('addImagePrivate', { image: data.image, to: result.recipients, from: socket.username, time: GetCurrentTime() });
+      }
+    }
+    else {
+      io.sockets.emit('addImage', { image: data.image, to: socket.username, time: GetCurrentTime() });
+    }
   });
 
   // New User
@@ -144,50 +170,16 @@ function commandFactory(data, user) {
     users[user].emit('notification', "/shutdown -> Shuts down the server");
   }
   else if (command === "p") {
-    recipients = [];
-    var message = "";
-
-    var usersAndMessage = data.substr(3, data.length);
-    var usersAndMessageSplitted = usersAndMessage.split(" ");
-    var userEndFlag = false;
-    usersAndMessageSplitted.forEach(element => {
-      if (element in users) {
-        if (!userEndFlag) {
-          recipients.push(element);
-        }
-        else {
-          message += " " + element;
-        }
-      }
-      else {
-        userEndFlag = true;
-        message += " " + element;
-      }
-    });
-    recipients.sort();
-    message = message.trim();
-
-    var recipientsString = "";
-    recipients.forEach(element => {
-      recipientsString += " " + element + ",";
-    });
-    recipientsString = recipientsString.substr(0, recipientsString.length - 1);
-    recipientsString = recipientsString.trim();
-
-    if (recipients.length === 0) {
-      users[user].emit('notification', "The selected users could not be found");
-      return;
-    }
+    var result = GetRecipientsAndMessage(data, user);
 
     recipients.forEach(element => {
-      users[element].emit('private message', { msg: message, to: recipientsString, from: user, time: GetCurrentTime() });
+      users[element].emit('private message', { msg: result.message, to: result.recipients, from: user, time: GetCurrentTime() });
     });
-    users[user].emit('private message', { msg: message, to: recipientsString, from: user, time: GetCurrentTime() });
+    users[user].emit('private message', { msg: result.message, to: result.recipients, from: user, time: GetCurrentTime() });
   }
   else {
     users[user].emit('notification', "Unknown command type /help for help");
   }
-
 }
 
 /**
@@ -240,6 +232,48 @@ function GetCurrentTime() {
   }
   var time = '<' + currentHourString + ":" + currentMinuteString + ":" + currentSecondString + '> ';
   return time;
+}
+
+/**
+ * Gets the message and all the recipients in a formatted string.
+ */
+
+function GetRecipientsAndMessage(data, user) {
+  recipients = [];
+  var message = "";
+
+  var usersAndMessage = data.substr(3, data.length);
+  var usersAndMessageSplitted = usersAndMessage.split(" ");
+  var userEndFlag = false;
+  usersAndMessageSplitted.forEach(element => {
+    if (element in users) {
+      if (!userEndFlag) {
+        recipients.push(element);
+      }
+      else {
+        message += " " + element;
+      }
+    }
+    else {
+      userEndFlag = true;
+      message += " " + element;
+    }
+  });
+  recipients.sort();
+  message = message.trim();
+
+  var recipientsString = "";
+  recipients.forEach(element => {
+    recipientsString += " " + element + ",";
+  });
+  recipientsString = recipientsString.substr(0, recipientsString.length - 1);
+  recipientsString = recipientsString.trim();
+
+  if (recipients.length === 0) {
+    users[user].emit('notification', "The selected users could not be found");
+    return;
+  }
+  return { recipients: recipientsString, message: message }
 }
 
 /**
