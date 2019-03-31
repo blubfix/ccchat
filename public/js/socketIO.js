@@ -36,11 +36,13 @@ $(function () {
 
     $loginForm.submit(function (e) {
         e.preventDefault();
-        socket.emit('new user', $username.val().trim(), function (data) {
+        var username = $username.val().trim();
+        socket.emit('new user', username, function (data) {
             if (data) {
                 $loginFormArea.hide();
                 $messageFormArea.show();
                 $("body").css("background-color", "white");
+                document.title = "CC Chat - " + username;
             }
             else {
                 $('#dupUser').show();
