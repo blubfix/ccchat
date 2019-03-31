@@ -1,4 +1,8 @@
 /**
+ * CC Chat by Laurin Obermaier and Felix Welker, 762582 and 762600
+ */
+
+/**
  * Module dependencies.
  */
 var app = require('../app');

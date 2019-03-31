@@ -1,3 +1,7 @@
+/**
+ * CC Chat by Laurin Obermaier and Felix Welker, 762582 and 762600
+ */
+
 var express = require('express');
 var cons = require('consolidate');
 var favicon = require('serve-favicon');

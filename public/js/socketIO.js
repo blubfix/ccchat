@@ -1,3 +1,7 @@
+/**
+ * CC Chat by Laurin Obermaier and Felix Welker, 762582 and 762600
+ */
+
 $(function () {
     var socket = io();
     var $loginForm = $('#loginForm');
