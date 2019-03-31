@@ -22,7 +22,7 @@ app.set('port', port);
 //https://stackoverflow.com/questions/3653065/get-local-ip-address-in-node-js
 var server = http.createServer(app);
 require('dns').lookup(require('os').hostname(), function (err, add, fam) {
-  process.stdout.write("Server started on "+ add+ ":" +port+ "\n");
+  process.stdout.write("Server started on " + add + ":" + port + "\n");
 })
 
 /**
@@ -37,63 +37,63 @@ server.on('listening', onListening);
  * Create socket.io instance.
  */
 
-const SocketAntiSpam  = require('socket-anti-spam')
+const SocketAntiSpam = require('socket-anti-spam')
 const io = require('socket.io')(server);
 
 const socketAntiSpam = new SocketAntiSpam({
-  banTime:            3,          // Ban time in minutes
-  kickThreshold:      5,          // User gets kicked after this many spam score
-  kickTimesBeforeBan: 5,          // User gets banned after this many kicks
-  banning:            false,      // Uses temp IP banning after kickTimesBeforeBan
-  io:                 io          // Bind the socket.io variable
+  banTime: 3,                 // Ban time in minutes
+  kickThreshold: 5,           // User gets kicked after this many spam score
+  kickTimesBeforeBan: 5,      // User gets banned after this many kicks
+  banning: false,             // Uses temp IP banning after kickTimesBeforeBan
+  io: io                      // Bind the socket.io variable
 })
 
-io.on('connection', function(socket){
-  
+io.on('connection', function (socket) {
+
   // Connection
   connections.push(socket);
 
   // Disconnect
-  socket.on('disconnect', function() {
-    if(!socket.username) return;
+  socket.on('disconnect', function () {
+    if (!socket.username) return;
     delete users[socket.username];
-    updateUsernames;
+    updateUsernames();
     connections.splice(connections.indexOf(socket), 1);
     io.emit('notification', socket.username + " left the chat");
   });
 
   // Chat Message
-  socket.on('chat message', function(data){
-    
-    if(data.length === 0) {
+  socket.on('chat message', function (data) {
+
+    if (data.length === 0) {
       return;
     }
-    if(socket.username == null) {
+    if (socket.username == null) {
       // do nothing
     }
     else {
-      if(checkForCommand(data)) {
-        commandFactory(data, socket.username);     
+      if (checkForCommand(data)) {
+        commandFactory(data, socket.username);
       }
       else {
-        io.emit('chat message', {msg: data, to: socket.username, time: GetCurrentTime()});  
+        io.emit('chat message', { msg: data, to: socket.username, time: GetCurrentTime() });
       }
-    }   
+    }
   });
 
   // Anti Spam
   socketAntiSpam.event.on('kick', (socket, data) => {
-    users[socket.username].emit('warning', {msg: "You have been kicked for spamming", time: GetCurrentTime()});
+    users[socket.username].emit('warning', { msg: "You have been kicked for spamming", time: GetCurrentTime() });
   });
 
   // Image
-  socket.on('user image', function(image) {
-    io.sockets.emit('addImage', {image: image, to: socket.username, time: GetCurrentTime()});
+  socket.on('user image', function (image) {
+    io.sockets.emit('addImage', { image: image, to: socket.username, time: GetCurrentTime() });
   });
 
   // New User
-  socket.on('new user', function(data, callback) {
-    if(data in users) {
+  socket.on('new user', function (data, callback) {
+    if (data in users || data.length === 0) {
       callback(false);
     }
     else {
@@ -108,10 +108,10 @@ io.on('connection', function(socket){
   function updateUsernames() {
     io.sockets.emit('get users', Object.keys(users));
   }
-  });
+});
 
 function checkForCommand(message) {
-  if(message.charAt(0) == "/") {
+  if (message.charAt(0) == "/") {
     return true;
   }
   return false;
@@ -122,7 +122,7 @@ function checkForCommand(message) {
  */
 function commandFactory(data, user) {
   var command = null;
-  if(data.includes(' ')) {
+  if (data.includes(' ')) {
     command = data.substr(1, data.indexOf(' '));
   }
   else {
@@ -130,20 +130,20 @@ function commandFactory(data, user) {
   }
   command = command.trim();
 
-  if(command === "warning") {
+  if (command === "warning") {
     var message = data.substr(data.indexOf(' ') + 1);
-    io.emit('warning', {msg: message, time: GetCurrentTime()});
+    io.emit('warning', { msg: message, time: GetCurrentTime() });
   }
 
-  else if(command === "shutdown") {
+  else if (command === "shutdown") {
     shutdown();
   }
-  else if(command === "help") {
+  else if (command === "help") {
     users[user].emit('notification', "/p user1 user2 message -> Sends a private message to a defined subset of unlimited users");
     users[user].emit('notification', "/warning -> Sends a global warning message");
     users[user].emit('notification', "/shutdown -> Shuts down the server");
   }
-  else if(command === "p") {
+  else if (command === "p") {
     recipients = [];
     var message = "";
 
@@ -151,8 +151,8 @@ function commandFactory(data, user) {
     var usersAndMessageSplitted = usersAndMessage.split(" ");
     var userEndFlag = false;
     usersAndMessageSplitted.forEach(element => {
-      if(element in users) {
-        if(!userEndFlag) {
+      if (element in users) {
+        if (!userEndFlag) {
           recipients.push(element);
         }
         else {
@@ -173,16 +173,16 @@ function commandFactory(data, user) {
     });
     recipientsString = recipientsString.substr(0, recipientsString.length - 1);
     recipientsString = recipientsString.trim();
-    
+
     if (recipients.length === 0) {
       users[user].emit('notification', "The selected users could not be found");
       return;
     }
 
     recipients.forEach(element => {
-      users[element].emit('private message', {msg: message, to: recipientsString, from: user, time: GetCurrentTime()});
-    });   
-    users[user].emit('private message', {msg: message, to: recipientsString, from: user, time: GetCurrentTime()});
+      users[element].emit('private message', { msg: message, to: recipientsString, from: user, time: GetCurrentTime() });
+    });
+    users[user].emit('private message', { msg: message, to: recipientsString, from: user, time: GetCurrentTime() });
   }
   else {
     users[user].emit('notification', "Unknown command type /help for help");
@@ -194,12 +194,12 @@ function commandFactory(data, user) {
  * Handles the server shutdown.
  */
 async function shutdown() {
-  io.emit('warning', {msg: "This server will be shutdown in:", time: GetCurrentTime()});
-  for(var i = 3; i >= 1; i--) {
+  io.emit('warning', { msg: "This server will be shutdown in:", time: GetCurrentTime() });
+  for (var i = 3; i >= 1; i--) {
     await sleep(1000);
-    io.emit('warning', {msg: i, time: GetCurrentTime()});
+    io.emit('warning', { msg: i, time: GetCurrentTime() });
   }
-  io.emit('warning', {msg: "Server shutdown!", time: GetCurrentTime()});
+  io.emit('warning', { msg: "Server shutdown!", time: GetCurrentTime() });
   await sleep(100);
   process.exit(0);
 }
@@ -209,7 +209,7 @@ async function shutdown() {
  */
 function sleep(milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
- }
+}
 
 /**
  * Gets the current time.
@@ -220,19 +220,19 @@ function GetCurrentTime() {
   var currentHour = date.getHours();
   var currentMinute = date.getMinutes();
   var currentSecond = date.getSeconds();
-  if(currentHour.toString().length < 2) {
+  if (currentHour.toString().length < 2) {
     var currentHourString = "0" + currentHour.toString();
   }
   else {
     var currentHourString = currentHour.toString();
   }
-  if(currentMinute.toString().length < 2) {
+  if (currentMinute.toString().length < 2) {
     currentMinuteString = "0" + currentMinute.toString();
   }
   else {
     var currentMinuteString = currentMinute.toString();
   }
-  if(currentSecond.toString().length < 2) {
+  if (currentSecond.toString().length < 2) {
     currentSecondString = "0" + currentSecond.toString();
   }
   else {

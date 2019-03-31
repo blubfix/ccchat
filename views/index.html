@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="shortcut icon" href="favicon.ico">
   <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/socketIO.js"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
     integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
@@ -30,8 +32,6 @@
       </form>
     </div>
   </div>
-
-
   <div id="divChat">
     <div class="left">
       <div id="push_sidebar">
@@ -39,118 +39,29 @@
         <ul id="users" class="list-unstyled">
         </ul>
       </div>
-
-
-
     </div>
-
     <div id="wrapper">
-
       <div class="right">
         <ul id="messages"></ul>
         <form id="messageForm">
           <input id="messageInput" autocomplete="off" />
-
           <button class="sendButton">Send</button>
-
           <label for="file-upload" class="custom-file-upload">
-              <i class="fas fa-paperclip" style=" font-size: 26px;"></i>
+            <i class="fas fa-paperclip" style=" font-size: 26px;"></i>
           </label>
-          <input id="file-upload" type="file" accept="image/png, image/jpeg"/>
-
+          <input id="file-upload" type="file" accept="image/png, image/jpeg" />
           <span class="nav_trigger">
             <i class="fas fa-users"></i>
           </span>
         </form>
       </div>
-
-
     </div>
   </div>
-
   </div>
-
   <!-- Sidebar Script -->
   <script>
     $(".nav_trigger").click(function () {
       $("body").toggleClass("show_sidebar");
-    });
-  </script>
-
-  <!-- Socket IO Skript -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    $(function () {
-      var socket = io();
-      var $loginForm = $('#loginForm');
-      var $loginFormArea = $('#divLogin');
-      var $messageFormArea = $('#divChat');
-      var $users = $('#users');
-      var $username = $('#inputUsername');
-      var $image = $('#file-upload');
-
-      $('#messageForm').submit(function () {
-        socket.emit('chat message', $('#messageInput').val());
-        $('#messageInput').val('');
-        window.scrollTo(0, document.body.scrollHeight);
-        return false;
-      });
-
-      socket.on('chat message', function (data) {
-        $('#messages').append('<li>' + data.time + '<strong>' + data.to + '</strong>: ' + data.msg + '</li>');
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-
-      socket.on('notification', function (data) {
-        $('#messages').append($('<li>').text(data));
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-
-      socket.on('private message', function (data) {
-        $('#messages').append('<li><em>' + data.time + '<strong>' + data.from + ' -> ' + data.to + '</strong>: </em>' + data.msg + '</li>');
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-
-      socket.on('warning', function (data) {
-        $('#messages').append('<li><strong><font color="red">' + data.time + data.msg + '</font></strong></li>');
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-
-      $loginForm.submit(function (e) {
-        e.preventDefault();
-        socket.emit('new user', $username.val(), function (data) {
-          if (data) {
-            $loginFormArea.hide();
-            $messageFormArea.show();
-            $("body").css("background-color", "white");
-          }
-          else {
-            $('#dupUser').show();
-          }
-        });
-        $username.val('');
-      });
-
-      socket.on('get users', function (data) {
-        var html = '';
-        for (i = 0; i < data.length; i++) {
-          html += '<li>' + data[i] + '</li>';
-        }
-        $users.html(html);
-      });
-
-      socket.on('addImage', function(data) {
-        $('#messages').append('<li>' + data.time + '<strong>' + data.to + '</strong>: ' + '<img src="'+ data.image +'" style="max-width: 400px; max-height: 400px;">' + '</li>');
-      });
-
-      $image.on('change', function(e) {
-        var file = e.originalEvent.target.files[0];
-        var reader = new FileReader();
-        reader.onload = function(evt) {
-          socket.emit('user image', evt.target.result);
-        };
-        reader.readAsDataURL(file);
-      })
     });
   </script>
 </body>
